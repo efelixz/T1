@@ -1,43 +1,54 @@
-# neuroforge/agents/dev.py
+# neuroforge/agents/dev.py (VERSÃO ATUALIZADA)
 
 from .base import BaseAgent
-# Futuramente, importaremos nosso cliente Gemini aqui
-# from integrations.gemini import GeminiClient 
+from neuroforge.integrations.gemini import GeminiClient
 
 class NeoDev(BaseAgent):
     """
-    Agente NeoDev: O Desenvolvedor de Software.
-    
-    Especializado em escrever, analisar e refatorar código em várias linguagens.
+    O agente NeoDev agora pode tanto criar código do zero quanto
+    modificar código existente, dando-lhe "memória de contexto".
     """
     def __init__(self):
-        super().__init__(
-            name="NeoDev",
-            description="Agente especialista em desenvolvimento de software."
-        )
-        # self.llm_client = GeminiClient() # Inicializa o cliente para o modelo de linguagem
+        self.gemini_client = GeminiClient()
 
-    async def run(self, task_description: str) -> str:
+    def run(self, task: str, existing_code: str = "") -> str:
         """
-        Executa uma tarefa de desenvolvimento de código.
+        Executa uma tarefa de desenvolvimento. Se 'existing_code' for fornecido,
+        a tarefa será modificar esse código.
 
         Args:
-            task_description (str): A descrição da tarefa de codificação.
+            task (str): A descrição da tarefa a ser executada.
+            existing_code (str, optional): O código existente a ser modificado.
 
         Returns:
-            str: O código gerado ou o resultado da tarefa.
+            str: O código completo e atualizado.
         """
-        print(f"🤖 Agente {self.name} assumindo a tarefa: {task_description}")
+        print(f"🤖 Agente NeoDev recebeu a tarefa: {task}")
 
-        # Aqui virá a lógica para chamar a API do Gemini
-        # Por enquanto, retornamos uma mensagem de exemplo.
-        prompt = f"Gerar código Python para a seguinte tarefa: {task_description}"
-        
-        # código_gerado = await self.llm_client.generate_code(prompt)
-        
-        # Simulação da resposta
-        await asyncio.sleep(3) # Simula o tempo de geração
-        codigo_simulado = f'# Código gerado para: "{task_description}"\n\nclass Exemplo:\n    def __init__(self):\n        print("Exemplo de código gerado pelo NeoDev")'
-        
-        print(f"✅ {self.name} completou a tarefa.")
-        return codigo_simulado
+        if existing_code:
+            print("   (Contexto: A modificar código existente)")
+            prompt = f"""
+            Você é um programador de IA de elite. Sua tarefa é modificar ou adicionar funcionalidades a um código Python existente.
+            NÃO remova funcionalidades existentes, a menos que a tarefa peça explicitamente.
+            Retorne APENAS o ficheiro de código completo e atualizado.
+
+            CÓDIGO EXISTENTE:
+            ---
+            {existing_code}
+            ---
+
+            TAREFA DE MODIFICAÇÃO: "{task}"
+            """
+        else:
+            print("   (Contexto: A criar novo ficheiro de código)")
+            prompt = f"""
+            Você é um assistente de programação de elite.
+            Sua tarefa é gerar o código Python para o seguinte pedido: "{task}"
+            O código deve ser limpo, eficiente e bem documentado.
+            Gere apenas o bloco de código, sem explicações adicionais.
+            """
+
+        print("⚡️ A contactar a IA para gerar/modificar o código...")
+        generated_code = self.gemini_client.generate_code(prompt)
+        print("✅ Código gerado/modificado com sucesso!")
+        return generated_code

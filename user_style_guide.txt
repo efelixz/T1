@@ -1,0 +1,7 @@
+# O Meu Guia de Estilo Pessoal para o NeuroForge
+
+1.  Usar sempre aspas duplas ("") para todas as strings.
+2.  Adicionar "type hints" (dicas de tipo) para todos os argumentos de função e para o valor de retorno. Ex: def minha_funcao(nome: str) -> int:
+3.  Todas as funções públicas devem ter uma docstring no formato Google.
+4.  O comprimento máximo de uma linha de código deve ser de 88 caracteres.
+5.  Usar nomes de variáveis e funções em snake_case (ex: `minha_variavel`).
